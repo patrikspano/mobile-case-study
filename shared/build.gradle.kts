@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.kotlinCocoapods)
 }
 
 kotlin {
@@ -25,6 +26,16 @@ kotlin {
             baseName = "Shared"
             isStatic = true
         }
+    }
+
+    cocoapods {
+        summary = "Some description for the Shared Module"
+        homepage = "Link to the Shared Module homepage"
+        ios.deploymentTarget = "14.1"
+        framework {
+            baseName = "Shared"
+        }
+        version = "1.0.0"
     }
     
     sourceSets {
