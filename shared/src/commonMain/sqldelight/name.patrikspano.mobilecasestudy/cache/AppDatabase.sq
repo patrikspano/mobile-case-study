@@ -1,0 +1,75 @@
+-- Creating CoinData table
+CREATE TABLE CoinData (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    current_price REAL NOT NULL,
+    market_cap INTEGER NOT NULL,
+    price_change_percentage_24h REAL,
+    sparkline TEXT
+);
+
+-- Insert function for CoinData
+insertCoinData:
+INSERT INTO CoinData (id, name, symbol, current_price, market_cap, price_change_percentage_24h, sparkline)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+-- Delete function to clear CoinData table
+removeAllCoinData:
+DELETE FROM CoinData;
+
+-- Select function to get all CoinData
+selectAllCoinData:
+SELECT * FROM CoinData;
+
+-- Creating SearchCoin table
+CREATE TABLE SearchCoin (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    api_symbol TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    market_cap_rank INTEGER NOT NULL,
+    thumb TEXT NOT NULL,
+    large TEXT NOT NULL
+);
+
+-- Insert function for SearchCoin
+insertSearchCoin:
+INSERT INTO SearchCoin (id, name, api_symbol, symbol, market_cap_rank, thumb, large)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+-- Delete function to clear SearchCoin table
+removeAllSearchCoins:
+DELETE FROM SearchCoin;
+
+-- Select function to get all SearchCoin
+selectAllSearchCoins:
+SELECT * FROM SearchCoin;
+
+-- Creating TrendingCoin table
+CREATE TABLE TrendingCoin (
+    id TEXT PRIMARY KEY,
+    coin_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    market_cap_rank INTEGER,
+    thumb TEXT,
+    small TEXT,
+    large TEXT,
+    slug TEXT,
+    price_btc REAL,
+    score INTEGER NOT NULL
+);
+
+-- Insert function for TrendingCoin
+insertTrendingCoin:
+INSERT INTO TrendingCoin (id, coin_id, name, symbol, market_cap_rank, thumb, small, large, slug, price_btc, score)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- Delete function to clear TrendingCoin table
+removeAllTrendingCoins:
+DELETE FROM TrendingCoin;
+
+-- Select function to get all TrendingCoin
+selectAllTrendingCoins:
+SELECT * FROM TrendingCoin;
