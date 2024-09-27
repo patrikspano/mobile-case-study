@@ -1,0 +1,6 @@
+Moja cesta vývojom aplikácie 📱
+
+Pri vývoji aplikácie som sa cítil ako na horskej dráhe. Keď som obdržal zadanie, pocítil som adrenalín, pretože som zistil, že s niektorými aspektmi som sa ešte nestretol. Zobral som to však ako výzvu a snažil sa začať čím skôr. Neskôr som si uvedomil, že to nebol úplne najlepší prístup. Hneď na druhý deň som sa pustil do zadania a hľadal dokumentáciu, aby som správne nastavil vývojové prostredie. 
+KMP, Koin, Ktor a SQLDelight boli pre mňa úplne nové technológie, ktoré mi zabrali viac času, než som očakával. Až neskôr som objavil, že na stránke KMP je dostupná dokumentácia s návodmi, ktoré zahŕňajú práve Koin, Ktor a SQLDelight. Toto bolo pre mňa veľkým poučením do budúcnosti, pretože keby som na začiatku venoval viac času vyhľadaniu správnej dokumentácie, mohol by som získať viac času na samotný vývoj.
+
+Na druhej strane som mal aj svetlejšie chvíle, keď sa mi podarilo úspešne realizovať niečo v aplikácii. Vtedy som mal radosť z toho, čo ma motivovalo pokračovať ďalej. Od začiatku som sa snažil pokryť čo najviac požiadaviek a hoci sa mi nie všetky podarili, získal som základy v nástrojoch ako Koin, Ktor a SQLDelight, ktoré som predtým nepoznal. Cítim, že mi ešte chýba kus znalostí, ale vďaka tomuto projektu som sa posunul o malý krok dopredu.
