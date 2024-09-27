@@ -24,7 +24,8 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "Shared"
-            isStatic = true
+            isStatic = false
+            freeCompilerArgs += listOf("-Xbinary=bundleId=name.patrikspano.mobilecasestudy.sharedframework")
         }
     }
 
