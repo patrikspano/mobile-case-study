@@ -73,5 +73,5 @@ class CryptoSDK(databaseDriverFactory: DatabaseDriverFactory,
 
         suspend fun updateFavoriteStatus(coin: CoinData) {
             database.updateFavoriteStatus(coin)
-    }
+        }
 }
