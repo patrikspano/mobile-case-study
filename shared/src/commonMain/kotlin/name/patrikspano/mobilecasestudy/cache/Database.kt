@@ -45,6 +45,7 @@ internal class Database(databaseDriverFactory: DatabaseDriverFactory) {
         dbQuery.transaction {
             dbQuery.removeAllCoinData()
             coins.forEach { coin ->
+                println("Inserting coin with favorite status: ${coin.id} - ${coin.isFavorite}")
                 dbQuery.insertCoinData(
                     id = coin.id,
                     name = coin.name,

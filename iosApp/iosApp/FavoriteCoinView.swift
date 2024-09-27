@@ -4,7 +4,6 @@ import Shared
 struct FavoriteCoinView: View {
     @ObservedObject private(set) var viewModel: FavoriteCoinViewModel
     @State private var searchText = ""
-    @State private var searchPerformed = false // Flag to track if search was performed
 
     var body: some View {
         NavigationView {
@@ -14,14 +13,11 @@ struct FavoriteCoinView: View {
                     TextField("Search Coins", text: $searchText, onEditingChanged: { isEditing in
                         if isEditing && !searchText.isEmpty {
                             viewModel.performSearch(query: searchText)
-                            searchPerformed = true
                         } else {
-                            viewModel.clearSearchResults()
-                            searchPerformed = false
+                            clearSearch()
                         }
                     }, onCommit: {
                         viewModel.performSearch(query: searchText)
-                        searchPerformed = true
                     })
                     .padding(10)
                     .background(Color(.systemGray6))
@@ -40,10 +36,10 @@ struct FavoriteCoinView: View {
                     }
                 }
                 .padding(.vertical, 8)
-                .background(Color(.systemBackground)) // Stick the search bar visually
+                .background(Color(.systemBackground))
 
                 // Check if there are no favorite coins to show the centered message
-                if !searchPerformed && viewModel.favoriteCoins.isEmpty {
+                if !viewModel.searchPerformed && viewModel.favoriteCoins.isEmpty {
                     Spacer()
                     Text("No favorite coins yet 😕 Add some using the search bar.")
                         .multilineTextAlignment(.center)
@@ -73,24 +69,27 @@ struct FavoriteCoinView: View {
     private func clearSearch() {
         // Clear the search text, suggestions, and reset the search flag
         searchText = ""
-        searchPerformed = false
         viewModel.clearSearchResults()
     }
 
     private func listView() -> some View {
         List {
             // Show search results when a search is performed
-            if searchPerformed && !viewModel.searchResults.isEmpty {
+            if viewModel.searchPerformed && !viewModel.searchResults.isEmpty {
                 ForEach(viewModel.searchResults.map { IdentifiableSearchCoin(coin: $0) }) { coin in
-                    // Clicking on the row will trigger the favorite action
-                    SearchCoinRow(searchCoin: coin.coin)
-                        .onTapGesture {
-                            viewModel.addCoinToFavorites(coin.coin)
-                        }
-                        .padding(.vertical, 4)
+                    ZStack {
+                        SearchCoinRow(searchCoin: coin.coin)
+                            .padding(.vertical, 4)
+                        
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                print("Tapped on coin: \(coin.coin.name)")
+                                viewModel.addCoinToFavorites(coin.coin)
+                            }
+                    }
                 }
-            } else if searchPerformed && viewModel.searchResults.isEmpty {
-                // Display "No match found" only after a search is performed and no results are found
+            } else if viewModel.searchPerformed && viewModel.searchResults.isEmpty {
                 VStack {
                     Spacer()
                     Text("No matching results found")
@@ -115,7 +114,6 @@ struct FavoriteCoinView: View {
         .listStyle(PlainListStyle())
     }
 }
-
 // Definition of IdentifiableCoin to wrap CoinData with Identifiable conformance
 struct IdentifiableCoin: Identifiable {
     let id: String
@@ -142,7 +140,8 @@ extension FavoriteCoinView {
     @MainActor
     class FavoriteCoinViewModel: ObservableObject {
         @Published var favoriteCoins: [CoinData] = []
-        @Published var searchResults: [SearchCoin] = [] // To store search results
+        @Published var searchResults: [SearchCoin] = []
+        @Published var searchPerformed: Bool = false
         private let helper: KoinHelper
 
         init(helper: KoinHelper) {
@@ -150,12 +149,15 @@ extension FavoriteCoinView {
             loadFavoriteCoins(forceReload: false)
         }
 
+        // Correct usage of getCoinData to load favorite coins
         func loadFavoriteCoins(forceReload: Bool) {
             Task {
                 do {
-                    // Fetch all CoinData and filter by isFavorite, correctly reloading coins
+                    // Use the helper to fetch coin data
                     let allCoins = try await helper.getCoinData(forceReload: forceReload)
+                    // Filter only the favorite coins
                     self.favoriteCoins = allCoins.filter { $0.isFavorite }
+                    print("Favorite coins loaded: \(favoriteCoins)") // Debug statement
                 } catch {
                     print("Error loading favorite coins: \(error.localizedDescription)")
                 }
@@ -166,34 +168,43 @@ extension FavoriteCoinView {
             Task {
                 do {
                     let coins = try await helper.getSearchCoins(query: query, forceReload: false)
-                    self.searchResults = coins
+                    self.searchResults = coins.filter { coin in
+                        coin.symbol.lowercased() == query.lowercased() || coin.name.lowercased().contains(query.lowercased())
+                    }
+                    self.searchPerformed = true
                 } catch {
                     print("Error performing search: \(error.localizedDescription)")
                     self.searchResults = []
+                    self.searchPerformed = true
                 }
             }
         }
 
         func clearSearchResults() {
             self.searchResults = []
+            self.searchPerformed = false
         }
 
         func addCoinToFavorites(_ coin: SearchCoin) {
+            // Create a CoinData object with the favorite status set to true
             let coinData = CoinData(
                 id: coin.id,
                 name: coin.name,
                 symbol: coin.symbol,
                 image: coin.thumb,
-                currentPrice: 0,
-                marketCap: 0,
-                priceChangePercentage24h: 0,
-                sparkline: SparklineData(price: []),
-                isFavorite: true
+                currentPrice: 0, // Adjust with the correct price if available
+                marketCap: 0,    // Adjust with the correct market cap if available
+                priceChangePercentage24h: 0, // Adjust if needed
+                sparkline: SparklineData(price: []), // Replace with actual data if available
+                isFavorite: true // Set favorite status to true
             )
             Task {
                 do {
+                    // Update the favorite status in the database
+                    print("Attempting to add coin to favorites: \(coinData.id)")
                     try await helper.updateFavoriteStatus(coin: coinData)
-                    loadFavoriteCoins(forceReload: false) // Refresh favorites list
+                    // Reload the favorite coins to reflect the updated status
+                    loadFavoriteCoins(forceReload: false)
                 } catch {
                     print("Error adding coin to favorites: \(error.localizedDescription)")
                 }
