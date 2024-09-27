@@ -3,16 +3,18 @@ CREATE TABLE CoinData (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     symbol TEXT NOT NULL,
+    image TEXT NOT NULL,
     current_price REAL NOT NULL,
     market_cap INTEGER NOT NULL,
     price_change_percentage_24h REAL,
-    sparkline TEXT
+    sparkline TEXT,
+    is_favorite INTEGER NOT NULL DEFAULT 0
 );
 
 -- Insert function for CoinData
 insertCoinData:
-INSERT INTO CoinData (id, name, symbol, current_price, market_cap, price_change_percentage_24h, sparkline)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+INSERT INTO CoinData (id, name, symbol, image ,current_price, market_cap, price_change_percentage_24h, sparkline, is_favorite )
+VALUES (?, ?, ?, ?, ?,?, ?, ?, ?);
 
 -- Delete function to clear CoinData table
 removeAllCoinData:
@@ -20,7 +22,13 @@ DELETE FROM CoinData;
 
 -- Select function to get all CoinData
 selectAllCoinData:
-SELECT * FROM CoinData;
+SELECT * FROM CoinData WHERE is_favorite = 1;
+
+-- Update favorite status of a coin
+updateCoinData:
+UPDATE CoinData
+SET is_favorite = ?
+WHERE id = ?;
 
 -- Creating SearchCoin table
 CREATE TABLE SearchCoin (

@@ -31,12 +31,31 @@ class CryptoSDK(databaseDriverFactory: DatabaseDriverFactory,
         @Throws(Exception::class)
         suspend fun getCoinData(forceReload: Boolean): List<CoinData> {
             val cachedCoinData = database.getAllCoinData()
-            return if (cachedCoinData.isNotEmpty() && !forceReload) {
-                cachedCoinData
+
+            // Return cached data if not forcing a reload
+            if (cachedCoinData.isNotEmpty() && !forceReload) {
+                return cachedCoinData
             } else {
-                coinsListApi.getAllCoinData().also {
-                    database.clearAndCreateCoinData(it)
+                // Fetch new data from API
+                val newCoinData = coinsListApi.getAllCoinData()
+
+                // Preserve favorite status from cached data
+                val favoriteCoins = cachedCoinData.filter { it.isFavorite }.associateBy { it.id }
+
+                // Merge new data with the favorite status
+                val updatedCoinData = newCoinData.map { coin ->
+                    // If the coin was previously marked as favorite, retain that status
+                    if (favoriteCoins.containsKey(coin.id)) {
+                        coin.copy(isFavorite = true)
+                    } else {
+                        coin
+                    }
                 }
+
+                // Update the database without clearing the favorite status
+                database.clearAndCreateCoinData(updatedCoinData)
+
+                return updatedCoinData
             }
         }
 
@@ -51,4 +70,8 @@ class CryptoSDK(databaseDriverFactory: DatabaseDriverFactory,
                 }
             }
         }
+
+        suspend fun updateFavoriteStatus(coin: CoinData) {
+            database.updateFavoriteStatus(coin)
     }
+}

@@ -8,6 +8,7 @@ import io.ktor.client.request.parameter
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import name.patrikspano.mobilecasestudy.entity.SearchCoin
+import name.patrikspano.mobilecasestudy.entity.SearchResponse
 
 class SearchQueriesApi {
     private val httpClient = HttpClient {
@@ -19,8 +20,15 @@ class SearchQueriesApi {
         }
     }
     suspend fun getAllSearchCoins(query: String): List<SearchCoin> {
-        return httpClient.get("https://api.coingecko.com/api/v3/search"){
-            parameter("query", query)
-        }.body()
+        return try {
+            val response: SearchResponse = httpClient.get("https://api.coingecko.com/api/v3/search") {
+                parameter("query", query)
+            }.body()
+
+            response.coins
+        } catch (e: Exception) {
+            println("Error fetching search results: ${e.message}")
+            emptyList()
+        }
     }
 }

@@ -7,6 +7,7 @@ import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import name.patrikspano.mobilecasestudy.entity.TrendingCoin
+import name.patrikspano.mobilecasestudy.entity.TrendingResponse
 
 class TrendingSearchListApi {
     private val httpClient = HttpClient {
@@ -18,6 +19,12 @@ class TrendingSearchListApi {
         }
     }
     suspend fun getAllTrendingCoins(): List<TrendingCoin> {
-        return httpClient.get("https://api.coingecko.com/api/v3/search/trending").body()
+        return try {
+            val response: TrendingResponse = httpClient.get("https://api.coingecko.com/api/v3/search/trending").body()
+            response.coins.map { it.item }
+        } catch (e: Exception) {
+            println("Error fetching trending coins: ${e.message}")
+            emptyList() // Return an empty list on failure
+        }
     }
 }

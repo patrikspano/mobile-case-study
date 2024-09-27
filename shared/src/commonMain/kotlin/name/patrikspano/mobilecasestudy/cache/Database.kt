@@ -18,10 +18,12 @@ internal class Database(databaseDriverFactory: DatabaseDriverFactory) {
         id: String,
         name: String,
         symbol: String,
+        image: String,
         current_price: Double,
         market_cap: Long,
         price_change_percentage_24h: Double?,
-        sparkline: String?
+        sparkline: String?,
+        is_favorite: Long
     ): CoinData {
         val sparklineData = SparklineData(
             price = sparkline?.split(",")?.mapNotNull { it.toDoubleOrNull() } ?: emptyList()
@@ -30,10 +32,12 @@ internal class Database(databaseDriverFactory: DatabaseDriverFactory) {
             id = id,
             name = name,
             symbol = symbol,
+            image = image,
             currentPrice = current_price,
             marketCap = market_cap,
             priceChangePercentage24h = price_change_percentage_24h ?: 0.0,
-            sparkline = sparklineData
+            sparkline = sparklineData,
+            isFavorite = is_favorite == 1L
         )
     }
 
@@ -45,13 +49,22 @@ internal class Database(databaseDriverFactory: DatabaseDriverFactory) {
                     id = coin.id,
                     name = coin.name,
                     symbol = coin.symbol,
+                    image = coin.image,
                     current_price = coin.currentPrice,
                     market_cap = coin.marketCap,
                     price_change_percentage_24h = coin.priceChangePercentage24h,
-                    sparkline = coin.sparkline.price.joinToString(",")
+                    sparkline = coin.sparkline.price.joinToString(","),
+                    is_favorite = if (coin.isFavorite) 1 else 0
                 )
             }
         }
+    }
+
+    internal fun updateFavoriteStatus(coin: CoinData) {
+        dbQuery.updateCoinData(
+            is_favorite = if (coin.isFavorite) 1 else 0,
+            id = coin.id
+        )
     }
 
     // SearchCoin operations
